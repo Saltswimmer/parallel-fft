@@ -42,12 +42,12 @@ def main():
     plots = fig.subplots(1, 2, squeeze=False)
 
     # temp
-    their_time = timeit.timeit(lambda: fft.fft(pad_data, padded_length), number=1)
+ #   their_time = timeit.timeit(lambda: fft.fft(pad_data, padded_length), number=1)
     print(f"Completed their fft in {my_time} seconds")
 
-    comp_fft = fft.fft(pad_data, padded_length)
+ #   comp_fft = fft.fft(pad_data, padded_length)
     #plots[0, 0].plot(time, data[:])
-    plots[0, 0].plot(freq, comp_fft[0:num_bins])
+ #   plots[0, 0].plot(freq, comp_fft[0:num_bins])
     #plots[0, 0].xlabel("Time (s)")
     #plots[0, 0].ylabel("Amplitude")
 
