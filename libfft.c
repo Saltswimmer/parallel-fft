@@ -64,7 +64,8 @@ float *fft(float *data, int length, int thread_count, float *output) {
     printf("Phase 1\n");
 #pragma omp parallel for num_threads(thread_count)
     for (int i = 0; i < length / 2; i++) {
-        coefficients[i] = cexpf((i / length) * -2 * PI * I);
+        coefficients[i] = (float)(cos(-2.0f * PI * i / length) +
+                                  sin(-2.0f * PI * i / length) * I);
     }
 
     // phase 2: rearrange indices
