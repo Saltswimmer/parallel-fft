@@ -61,17 +61,15 @@ float *fft(float *data, int length, int thread_count, float *output) {
         (float complex *)malloc(length / 2 * sizeof(float complex));
 
     // phase 1: pre-compute coefficients
-    printf("Phase 1\n");
+    const float factor = -2 * PI / length;
 #pragma omp parallel for num_threads(thread_count)
     for (int i = 0; i < length / 2; i++) {
-        coefficients[i] = (float)(cos(-2.0f * PI * i / length) +
-                                  sin(-2.0f * PI * i / length) * I);
+        // coefficients[i] = cexpf(i * -2 * PI * I / length);
+        coefficients[i] = cos(i * factor) + sin(i * factor) * I;
     }
 
     // phase 2: rearrange indices
     // each index gets mapped to the index if you reverse the bits
-
-    printf("Phase 2\n");
 
     unsigned int bit_size = (unsigned int)ceil(log2((float)length));
 
@@ -90,13 +88,10 @@ float *fft(float *data, int length, int thread_count, float *output) {
 
     // phase 3: intra-thread complex number arithmetic
 
-    printf("Phase 3\n");
-    /*
-    #pragma omp parallel num_threads(thread_count)
-        {
-    */
+#pragma omp parallel num_threads(thread_count)
     for (int N = 2; N <= length; N *= 2) {
         int coeff_step = length / N;
+#pragma omp for
         for (int i = 0; i < length; i += N) {
             for (int j = i, k = 0; j < (i + N / 2); j++, k += coeff_step) {
                 float complex p = buf[j + N / 2] * coefficients[k];
@@ -107,52 +102,15 @@ float *fft(float *data, int length, int thread_count, float *output) {
         if (N == length)
             break;
     }
-    //   }
 
-    /*
-    // phase 3: inter-thread complex number arithmetic
-    printf("Phase 3\n");
-
-    if (thread_count > 1) {
-        // clang-format off
-        #pragma omp parallel num_threads(thread_count)
-        {
-            int thread_id = omp_get_thread_num();
-            int thread_divisor = 2;
-
-            while (1) {
-                if (thread_id % thread_divisor) {
-                    break;
-                }
-                int N = thread_divisor * block_size;
-                int coeff_step = N / length;
-
-                for (int k = 0, coeff_idx = 0; k < N / 2; k++, coeff_idx +=
-    coeff_step) { float complex p = buf[thread_id * block_size + k]; float
-    complex q = buf[thread_id * block_size + k + N / 2] *
-                                      coefficients[coeff_idx];
-                                      //cexpf(thread_id * -2 * PI * I / N);
-                    buf[thread_id * block_size + k] = p + q;
-                    buf[thread_id * block_size + k + N / 2] = p - q;
-                }
-
-                thread_divisor *= 2;
-            }
-        }
-    }
-
-    free(coefficients);
-
-    // clang-format on
-    */
     // phase 4: convert complex numbers to real
-    printf("Phase 4\n");
 
 #pragma omp parallel for num_threads(thread_count)
     for (int i = 0; i < length; i++) {
         output[i] = creal(buf[i]);
     }
 
+    free(coefficients);
     free(buf);
     return output;
 }
