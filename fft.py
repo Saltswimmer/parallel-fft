@@ -35,22 +35,22 @@ def main():
     result_time = 0.0
     num_trials = 5
     if args.scipy:
-         result_time = timeit.timeit(lambda: fft.fft(pad_data), number=num_trials) 
+         result_time = timeit.timeit(lambda: fft.fft(pad_data, workers=args.num_threads), number=num_trials) 
     
          print(f"Average run time: {result_time / num_trials} seconds")
 
          fig = plt.figure(layout='constrained')
-         plots = fig.subplots(1, 2, squeeze=False)
+         plots = fig.subplots(1, 2, squeeze=True)
 
          output = fft.fft(pad_data)
 
-         plots[0, 0].set_xlabel('Time (seconds)')
-         plots[0, 0].set_ylabel('Amplitude')
-         plots[0, 0].plot(time, data)
+         plots[0].set_xlabel('Time (seconds)')
+         plots[0].set_ylabel('Amplitude')
+         plots[0].plot(time, data)
  
-         plots[0, 1].set_xlabel('Frequency (hz)')
-         plots[0, 1].set_ylabel('Intensity')
-         plots[0, 1].plot(freq, output[0:num_bins])
+         plots[1].set_xlabel('Frequency (hz)')
+         plots[1].set_ylabel('Intensity')
+         plots[1].plot(freq, output[0:num_bins])
          plot = fft.fft(data, samplerate)
          plt.show() 
     else:
@@ -61,20 +61,20 @@ def main():
          print(f"Average run time: {result_time / num_trials} seconds")
 
          fig = plt.figure(layout='constrained')
-         plots = fig.subplots(1, 2, squeeze=False)
+         plots = fig.subplots(1, 2, squeeze=True)
 
          duration = data.shape[0] / samplerate
          time = np.linspace(0., duration, data.shape[0])
 
          lib.fft(c_data, padded_length, args.num_threads, output)
 
-         plots[0, 0].set_xlabel('Time (seconds)')
-         plots[0, 0].set_ylabel('Amplitude')
-         plots[0, 0].plot(time, data)
+         plots[0].set_xlabel('Time (seconds)')
+         plots[0].set_ylabel('Amplitude')
+         plots[0].plot(time, data)
 
-         plots[0, 1].set_xlabel('Frequency (hz)')
-         plots[0, 1].set_ylabel('Intensity')
-         plots[0, 1].plot(freq, [i for i in output[0:num_bins]])
+         plots[1].set_xlabel('Frequency (hz)')
+         plots[1].set_ylabel('Intensity')
+         plots[1].plot(freq, [i for i in output[0:num_bins]])
          plt.show() 
 
 if __name__ == "__main__":
