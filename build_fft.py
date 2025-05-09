@@ -3,7 +3,7 @@ from cffi import FFI
 ffibuilder = FFI()
 
 ffibuilder.cdef("""
-    float *fft(float *, int, int, float *);
+    void fft(float *, int, int, float *);
 """)
 ffibuilder.set_source("_libfft_cffi",
 """

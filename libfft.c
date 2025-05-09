@@ -5,6 +5,7 @@
 #include <math.h>
 #include <complex.h>
 #include <stdint.h>
+#include <sys/time.h>
 
 static uint8_t reverse_byte[256] = {
     0b00000000, 0b10000000, 0b01000000, 0b11000000, 0b00100000, 0b10100000,
@@ -53,7 +54,14 @@ static uint8_t reverse_byte[256] = {
 
 static const float PI = (float)acos(-1);
 
-float *fft(float *data, int length, int thread_count, float *output) {
+double gettime() {
+    struct timeval tval;
+    gettimeofday(&tval, NULL);
+    return ((double)tval.tv_sec + (double)tval.tv_usec / 1000000.0);
+}
+
+void fft(float *data, int length, int thread_count, float *output) {
+    double         before = gettime();
     float complex *buf =
         (float complex *)malloc(length * sizeof(float complex));
 
@@ -68,6 +76,9 @@ float *fft(float *data, int length, int thread_count, float *output) {
         coefficients[i] = cos(i * factor) + sin(i * factor) * I;
     }
 
+    printf("1: %f\n", gettime() - before);
+
+    before = gettime();
     // phase 2: rearrange indices
     // each index gets mapped to the index if you reverse the bits
 
@@ -86,6 +97,9 @@ float *fft(float *data, int length, int thread_count, float *output) {
         buf[i] = (float complex)(data[new_index]);
     }
 
+    printf("2: %f\n", gettime() - before);
+
+    before = gettime();
     // phase 3: intra-thread complex number arithmetic
 
 #pragma omp parallel num_threads(thread_count)
@@ -103,6 +117,7 @@ float *fft(float *data, int length, int thread_count, float *output) {
             break;
     }
 
+    printf("3: %f\n", gettime() - before);
     // phase 4: convert complex numbers to real
 
 #pragma omp parallel for num_threads(thread_count)
@@ -112,5 +127,4 @@ float *fft(float *data, int length, int thread_count, float *output) {
 
     free(coefficients);
     free(buf);
-    return output;
 }

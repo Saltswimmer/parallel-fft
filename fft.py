@@ -8,14 +8,6 @@ import argparse
 import wave
 import timeit
 
-def libfft_demo(data, padded_length, num_bins, num_threads):
-
-        c_data = ffi.new("float[]", data.tolist())
-        output = ffi.new("float[]", [0.0 for i in range(padded_length)])
-        lib.fft(c_data, padded_length, num_threads, output)
-
-        return [i for i in output[0:num_bins]]
-
 def main():
     parser = argparse.ArgumentParser(
         prog='parallel-fft',
@@ -62,7 +54,10 @@ def main():
          plot = fft.fft(data, samplerate)
          plt.show() 
     else:
-         result_time = timeit.timeit(lambda: libfft_demo(pad_data, padded_length, num_bins, args.num_threads), number=num_trials) 
+         c_data = ffi.new("float[]", pad_data.tolist())
+         output = ffi.new("float[]", [0.0 for i in range(padded_length)])
+         result_time = timeit.timeit(lambda: lib.fft(c_data, padded_length, args.num_threads, output)
+, number=num_trials) 
          print(f"Average run time: {result_time / num_trials} seconds")
 
          fig = plt.figure(layout='constrained')
@@ -71,7 +66,7 @@ def main():
          duration = data.shape[0] / samplerate
          time = np.linspace(0., duration, data.shape[0])
 
-         output = libfft_demo(pad_data, padded_length, num_bins, args.num_threads)
+         lib.fft(c_data, padded_length, args.num_threads, output)
 
          plots[0, 0].set_xlabel('Time (seconds)')
          plots[0, 0].set_ylabel('Amplitude')
@@ -79,7 +74,7 @@ def main():
 
          plots[0, 1].set_xlabel('Frequency (hz)')
          plots[0, 1].set_ylabel('Intensity')
-         plots[0, 1].plot(freq, output)
+         plots[0, 1].plot(freq, [i for i in output[0:num_bins]])
          plt.show() 
 
 if __name__ == "__main__":
