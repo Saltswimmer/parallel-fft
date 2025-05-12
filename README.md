@@ -1,7 +1,9 @@
 # parallel-fft
 Parallel implementation of fast Fourier transform using OpenMP
+
 By Ethan Ciavolella
-For parallel computing
+
+For CS04391 Parallel and Concurrent Programming
 
 ## Installation
 
@@ -28,6 +30,7 @@ python fft.py <filename> <number of threads> (-s)
 ## Credits
 
 Reference implementation of iterative serial FFT: https://www.nayuki.io/page/free-small-fft-in-multiple-languages
+
 Online tone generator: https://www.szynalski.com/tone-generator/
 
 speleothem.wav sample file provided by Ethan Ciavolella
