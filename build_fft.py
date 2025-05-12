@@ -1,3 +1,9 @@
+'''
+Name: Ethan Ciavolella
+Id: 916328107
+Homework: Final Project
+See README.md for instructions on how to compile and run the program
+'''
 from cffi import FFI
 
 ffibuilder = FFI()

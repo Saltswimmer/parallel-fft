@@ -1,3 +1,9 @@
+'''
+Name: Ethan Ciavolella
+Id: 916328107
+Homework: Final Project
+See README.md for instructions on how to compile and run the program
+'''
 from _libfft_cffi import ffi, lib
 from scipy.io import wavfile
 from scipy import fft
